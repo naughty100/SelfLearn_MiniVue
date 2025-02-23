@@ -1,15 +1,19 @@
 import { ReactiveEffect } from './effect'
-import { isObject } from '../shared'
+import { isObject, hasChanged } from '../shared'
 
 export interface WatchOptions {
     immediate?: boolean
     deep?: boolean
 }
 
-export function watch(source: any, cb: Function, options: WatchOptions = {}) {
+export function watch<T>(
+    source: () => T,
+    cb: (newValue: T, oldValue: T) => void,
+    options: WatchOptions = {}
+) {
     const { immediate = false, deep = false } = options
 
-    let oldValue: any
+    let oldValue: T
 
     const job = () => {
         const newValue = runner.run()

@@ -1,23 +1,28 @@
 import { ReactiveEffect } from './effect'
 import { Ref } from './ref'
 
-export function computed<T>(getter: () => T): Ref<T> {
-    let value: T
-    let dirty = true
+class ComputedRefImpl<T> implements Ref<T> {
+    private _value!: T
+    private _dirty = true
+    private _effect: ReactiveEffect
 
-    const runner = new ReactiveEffect(getter, () => {
-        if (!dirty) {
-            dirty = true
-        }
-    })
-
-    return {
-        get value() {
-            if (dirty) {
-                value = runner.run()
-                dirty = false
+    constructor(getter: () => T) {
+        this._effect = new ReactiveEffect(getter, () => {
+            if (!this._dirty) {
+                this._dirty = true
             }
-            return value
-        }
+        })
     }
+
+    get value() {
+        if (this._dirty) {
+            this._value = this._effect.run()
+            this._dirty = false
+        }
+        return this._value
+    }
+}
+
+export function computed<T>(getter: () => T): Ref<T> {
+    return new ComputedRefImpl(getter)
 } 
