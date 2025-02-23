@@ -1,4 +1,3 @@
-
 # About This Project
 
 我是一个前端开发者，在开发还是面试过程中，都离不开对Vue的理解。
@@ -28,7 +27,17 @@ mini-vue/
 1. 实现`reactive()`用Proxy代理对象
 2. 实现`effect`副作用跟踪
 3. 实现依赖收集（track/trigger）
-4. 实现`ref`和`computed`
+4. 实现基础响应式API
+   - 实现`ref`处理原始值的响应式
+   - 实现`computed`计算属性
+     - 懒执行特性
+     - 缓存特性
+   - 实现`watch`
+     - 立即执行选项
+     - 深度监听选项
+   - 实现`watchEffect`
+     - 自动收集依赖
+     - 停止监听功能
 
 ### 第二阶段：虚拟DOM
 1. 实现VNode数据结构
