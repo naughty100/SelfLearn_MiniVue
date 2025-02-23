@@ -3,10 +3,15 @@ import { effect } from '../../src/reactivity/effect'
 
 describe('响应式系统测试', () => {
   test('reactive 基础功能', () => {
-    const original = { count: 0 }
+    // 添加接口定义
+    interface User {
+      count: number
+    }
+    
+    const original: User = { count: 0 }
     const observed = reactive(original)
     
-    let dummy
+    let dummy: number | undefined
     effect(() => {
       dummy = observed.count
     })

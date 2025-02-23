@@ -1,4 +1,4 @@
-import { ReactiveEffect } from './effect'
+import { ReactiveEffect, activeEffect } from './effect'
 
 export class Dep {
   private deps = new Set<ReactiveEffect>()

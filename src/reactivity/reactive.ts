@@ -3,7 +3,7 @@ import { activeEffect } from './effect'
 
 const targetMap = new WeakMap()
 
-export function reactive(raw: object) {
+export function reactive<T extends object>(raw: T): T {
     return new Proxy(raw, {
         get(target, key) {
             // 依赖收集
