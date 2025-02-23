@@ -20,4 +20,4 @@ export class Dep {
       effect.run()
     })
   }
-} 
+}
