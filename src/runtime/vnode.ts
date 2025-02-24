@@ -14,12 +14,12 @@ export interface VNode {
 export function h(
     type: string,
     props: Record<string, any> = {},
-    children: Array<VNode | string> = []
+    children: Array<VNode | string> | string = []
 ): VNode {
     return {
         type,
         props,
-        children,
+        children: typeof children === 'string' ? [createTextVNode(children)] : children,
         key: props?.key
     }
 }

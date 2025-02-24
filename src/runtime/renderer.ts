@@ -1,4 +1,4 @@
-import { VNode, Text } from './vnode'
+import { VNode, Text, createTextVNode } from './vnode'
 
 // 创建渲染器
 export function createRenderer() {
@@ -23,7 +23,7 @@ export function createRenderer() {
     if (typeof type === 'string') {
       // 创建元素节点
       const el = document.createElement(type)
-      
+
       // 设置属性
       for (const key in props) {
         if (key === 'key') continue
@@ -42,7 +42,7 @@ export function createRenderer() {
       if (children) {
         children.forEach(child => {
           if (typeof child === 'string') {
-            el.appendChild(document.createTextNode(child))
+            mount(createTextVNode(child), el)
           } else {
             mount(child, el)
           }
@@ -70,12 +70,103 @@ export function createRenderer() {
       return
     }
 
-    // 更新属性和子节点
-    // ... 待实现
+    // 获取旧节点的DOM元素
+    const el = (n2.el = n1.el!)
+
+    if (n1.type !== Text && n2.type !== Text) {
+      const htmlEl = el as HTMLElement
+      // 更新属性
+      const { props: newProps = {} } = n2
+      const { props: oldProps = {} } = n1
+
+      // 更新新属性
+      for (const key in newProps) {
+        const newValue = newProps[key]
+        const oldValue = oldProps[key]
+        if (newValue !== oldValue) {
+          if (key.startsWith('on')) {
+            // 更新事件监听器
+            const eventName = key.slice(2).toLowerCase()
+            htmlEl.removeEventListener(eventName, oldValue)
+            htmlEl.addEventListener(eventName, newValue)
+          } else {
+            // 更新普通属性
+            htmlEl.setAttribute(key, newValue)
+          }
+        }
+      }
+
+      // 删除旧属性
+      for (const key in oldProps) {
+        if (!(key in newProps)) {
+          if (key.startsWith('on')) {
+            // 移除事件监听器
+            const eventName = key.slice(2).toLowerCase()
+            htmlEl.removeEventListener(eventName, oldProps[key])
+          } else {
+            // 移除属性
+            htmlEl.removeAttribute(key)
+          }
+        }
+      }
+    }
+
+    // 更新子节点
+    const oldChildren = n1.children
+    const newChildren = n2.children
+
+    if (typeof newChildren === 'string') {
+      // 新子节点是文本
+      if (typeof oldChildren === 'string') {
+        // 旧子节点也是文本，直接更新
+        if (newChildren !== oldChildren) {
+          el.textContent = newChildren
+        }
+      } else {
+        // 旧子节点是数组，替换为文本
+        el.textContent = newChildren
+      }
+    } else {
+      // 新子节点是数组
+      if (typeof oldChildren === 'string') {
+        // 旧子节点是文本，清空后追加新节点
+        el.textContent = ''
+        newChildren.forEach(child => {
+          mount(child as VNode, el as HTMLElement)
+        })
+      } else {
+        // 都是数组，进行diff
+        updateChildren(el as HTMLElement, oldChildren as VNode[], newChildren as VNode[])
+      }
+    }
+  }
+
+  // 更新子节点数组
+  function updateChildren(el: HTMLElement, oldChildren: VNode[], newChildren: VNode[]) {
+    const oldLen = oldChildren.length
+    const newLen = newChildren.length
+    const commonLen = Math.min(oldLen, newLen)
+
+    // 更新共同长度的部分
+    for (let i = 0; i < commonLen; i++) {
+      patch(oldChildren[i], newChildren[i])
+    }
+
+    if (newLen > oldLen) {
+      // 添加新节点
+      for (let i = commonLen; i < newLen; i++) {
+        mount(newChildren[i], el)
+      }
+    } else if (oldLen > newLen) {
+      // 移除多余节点
+      for (let i = commonLen; i < oldLen; i++) {
+        el.removeChild(oldChildren[i].el!)
+      }
+    }
   }
 
   return {
     mount,
     patch
   }
-} 
+}
