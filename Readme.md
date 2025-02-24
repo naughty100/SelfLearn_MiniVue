@@ -39,10 +39,62 @@ mini-vue/
      - 自动收集依赖
      - 停止监听功能
 
-### 第二阶段：虚拟DOM
-1. 实现VNode数据结构
-2. 实现DOM diff算法
-3. 实现渲染器（mount/patch）
+### 第二阶段：虚拟DOM（最小核心实现）
+
+#### 1. VNode基础结构
+```typescript
+interface VNode {
+  type: string | Symbol // 元素类型/文本节点标识
+  props: Record<string, any> // 属性/事件
+  children: Array<VNode | string> // 子节点
+  el?: HTMLElement // 关联的真实DOM
+  key?: any // 用于diff的key
+}
+
+// 创建VNode的工厂函数
+function h(type: string, props: {}, children: []) { ... }
+```
+
+#### 2. 最简Diff算法（同层比较）
+实现逻辑：
+1. 比较根节点类型
+   - 类型不同：直接替换整个节点
+   - 类型相同：进入属性比较
+2. 属性更新：
+   - 新旧props差异比较
+   - 事件监听器特殊处理（如onClick）
+3. 子节点比较（带key）：
+   - 头头比较
+   - 尾尾比较
+   - 新增节点
+   - 删除节点
+   - 移动节点（通过key映射）
+
+#### 3. 基础渲染器
+```typescript
+// 挂载流程
+function mount(vnode: VNode, container: HTMLElement) {
+  // 1. 创建DOM元素
+  // 2. 处理props（包括事件绑定）
+  // 3. 递归挂载子节点
+  // 4. 将DOM插入容器
+}
+
+// 更新流程
+function patch(oldVNode: VNode, newVNode: VNode) {
+  // 1. 执行diff算法比较差异
+  // 2. 按需更新DOM：
+  //   - 更新文本内容
+  //   - 更新属性/事件
+  //   - 处理子节点变更
+}
+
+// 卸载流程
+function unmount(vnode: VNode) {
+  // 从父节点移除DOM
+  // 清理事件监听
+}
+```
 
 ### 第三阶段：模板编译
 1. 实现模板解析成AST

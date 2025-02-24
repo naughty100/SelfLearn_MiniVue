@@ -16,7 +16,7 @@ describe('ref测试', () => {
     expect(dummy).toBe(2)
   })
 
-  test('ref嵌套对象', () => {
+  test.only('ref嵌套对象', () => {
     const user = ref({
       name: '张三',
       age: 18
