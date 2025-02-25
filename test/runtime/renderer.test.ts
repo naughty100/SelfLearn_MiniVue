@@ -4,15 +4,25 @@ import { createVNode, Text, Fragment } from '../../src/runtime/vnode'
 // 测试渲染器功能
 describe('renderer', () => {
   let container: HTMLElement
-  
+
+  // 在所有测试开始前检查环境
+  beforeAll(() => {
+    if (typeof document === 'undefined') {
+      throw new Error('请确保测试环境支持DOM操作（使用jsdom）')
+    }
+  })
+
   // 在每个测试用例执行前初始化容器
   beforeEach(() => {
     container = document.createElement('div')
+    document.body.appendChild(container) // 添加到document中
   })
 
   // 在每个测试用例执行后清理容器
   afterEach(() => {
-    container.innerHTML = ''
+    if (container && container.parentNode) {
+      container.parentNode.removeChild(container)
+    }
   })
 
   // 创建自定义渲染器，传入平台相关的DOM操作方法
@@ -48,11 +58,11 @@ describe('renderer', () => {
   })
 
   // 测试元素更新功能
-  test('should update element', () => {
+  test.only('should update element', () => {
     // 先渲染初始节点
     const vnode1 = createVNode('div', { id: 'test' }, 'hello')
     renderer.render(vnode1, container)
-    
+
     // 创建新的虚拟节点
     const vnode2 = createVNode('div', { id: 'foo' }, 'world')
     // 执行更新渲染

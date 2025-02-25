@@ -19,7 +19,11 @@ export function h(
     return {
         type,
         props,
-        children: typeof children === 'string' ? [createTextVNode(children)] : children,
+        children: typeof children === 'string' 
+            ? children 
+            : children.map(child => 
+                typeof child === 'string' ? createTextVNode(child) : child
+            ),
         key: props?.key
     }
 }
@@ -29,7 +33,7 @@ export function createTextVNode(text: string): VNode {
     return {
         type: Text,
         props: {},
-        children: [text]
+        children: text
     }
 }
 
