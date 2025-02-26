@@ -3,7 +3,11 @@
 我是一个前端开发者，在开发还是面试过程中，都离不开对Vue的理解。
 我想通过手写一个迷你简易版Vue的形式去深入理解Vue这个框架是如何运作的。
 
+I am a frontend developer, and understanding Vue is essential in both development and interviews.
+I want to deepen my understanding of how the Vue framework works by implementing a mini version of Vue from scratch.
+
 # 大概的目录结构
+# Project Structure
 mini-vue/
 ├─ src/
 │ ├─ reactivity/ # 响应式系统
@@ -22,8 +26,28 @@ mini-vue/
 ├─ examples/ # 示例目录
 └─ test/ # 测试目录
 
+src/
+├─ reactivity/ # Reactivity System
+│ ├─ effect.ts # Effects and Dependency Collection
+│ ├─ reactive.ts # reactive/ref Implementation
+│ └─ dep.ts # Dependency Management
+├─ compiler/ # Compiler System
+│ ├─ parse.ts # Template Parsing
+│ ├─ transform.ts # AST Transformation
+│ └─ generate.ts # Code Generation
+├─ runtime/ # Runtime Core
+│ ├─ vnode.ts # Virtual Node Implementation
+│ ├─ renderer.ts # Renderer
+│ └─ component.ts # Component Handling
+└─ shared/ # Shared Utilities
+examples/ # Examples Directory
+test/ # Test Directory
+
 # 分步实现要点
+# Implementation Steps
+
 ### 第一阶段：响应式系统（核心）
+### Phase 1: Reactivity System (Core)
 1. 实现`reactive()`用Proxy代理对象
 2. 实现`effect`副作用跟踪
 3. 实现依赖收集（track/trigger）
@@ -39,7 +63,23 @@ mini-vue/
      - 自动收集依赖
      - 停止监听功能
 
+1. Implement `reactive()` using Proxy
+2. Implement `effect` for side effect tracking
+3. Implement dependency collection (track/trigger)
+4. Implement basic reactivity APIs
+    - Implement `ref` for primitive value reactivity
+    - Implement `computed` properties
+      - Lazy evaluation
+      - Caching
+    - Implement `watch`
+      - Immediate execution option
+      - Deep watching option
+    - Implement `watchEffect`
+      - Automatic dependency collection
+      - Stop watching functionality
+
 ### 第二阶段：虚拟DOM（最小核心实现）
+### Phase 2: Virtual DOM (Minimal Core Implementation)
 1. 实现虚拟节点（vnode）基础结构
    - 支持元素/组件/文本三种节点类型
    - 包含props/children等关键属性
@@ -59,8 +99,27 @@ mini-vue/
    - 事件监听器的绑定与解绑
    - 特殊属性（如key/ref）处理
 
+1. Implement virtual node (vnode) basic structure
+   - Support element/component/text node types
+   - Include key properties like props/children
+2. Implement core diff algorithm logic
+   - Same level comparison (avoid O(n^3) complexity)
+   - Handle node type changes (component↔element)
+   - Optimize keyed element movement
+3. Implement renderer core functionality
+   - Support browser and SSR (abstract DOM operations)
+   - Implement mount/update/unmount basic flow
+4. Handle special element types
+   - Quick text node updates
+   - Comment node placeholders
+   - Fragment multi-root support
+5. Implement props update mechanism
+   - Compare attribute addition/modification/deletion
+   - Event listener binding and unbinding
+   - Special attribute handling (key/ref)
 
 ### 第三阶段：模板编译（编译器核心）
+### Phase 3: Template Compilation (Compiler Core)
 1. 模板解析器实现
    - 实现基于有限状态机的词法分析
    - 构建HTML元素栈处理嵌套结构
@@ -79,7 +138,26 @@ mini-vue/
    - 生成sourcemap支持模板调试
    - 实现生产环境代码压缩
 
+1. Template Parser Implementation
+   - Implement lexical analysis based on finite state machine
+   - Build HTML element stack for nested structures
+   - Support text/element/comment/interpolation node types
+   - Handle dynamic attribute binding (v-bind) and event listening (v-on)
+
+2. AST Transform Optimization
+   - Implement directive parsing system (v-if/v-for etc.)
+   - Process interpolation expressions ({{ value }}) to render functions
+   - Static node hoisting optimization (mark static subtrees)
+   - Add source code location info for debugging
+
+3. Code Generation Strategy
+   - Generate optimized render function code
+   - Handle scope chain (component local vs global variables)
+   - Generate sourcemap for template debugging
+   - Implement production environment code minification
+
 ### 第四阶段：组件系统（可组合架构）
+### Phase 4: Component System (Composable Architecture)
 1. 组件实例管理
    - 创建组件上下文（提供/注入）
    - 处理setup函数与响应式状态关联
@@ -100,7 +178,28 @@ mini-vue/
    - 动态插槽名支持（v-slot:[dynamicName]）
    - 编译时优化插槽内容为函数
 
+1. Component Instance Management
+   - Create component context (provide/inject)
+   - Handle setup function and reactive state association
+   - Implement component tree lifecycle management
+
+2. Lifecycle Enhancement
+   - Implement async mounting (Suspense component support)
+   - Error boundary handling (errorCaptured hook)
+   - Server-side rendering specific lifecycle
+
+3. Advanced Props Handling
+   - Type validation system (runtime type checking)
+   - Implement deep props reactive updates
+   - Handle non-props attribute inheritance
+
+4. Slot Extension Mechanism
+   - Implement scoped slots (slots with parameters)
+   - Dynamic slot name support (v-slot:[dynamicName])
+   - Compile-time optimization of slot content to functions
+
 ## 推荐实现策略
+## Recommended Implementation Strategy
 1. 分层架构实现顺序
    - 响应式系统 → 虚拟DOM → 编译器 → 组件整合 → 生态工具
    - 每个模块通过`__tests__/`目录添加单元测试
@@ -117,7 +216,24 @@ mini-vue/
    - 优先实现90%常用场景再处理边界情况
    - 每个版本通过examples/添加演示案例
 
+1. Layered Architecture Implementation Order
+   - Reactivity System → Virtual DOM → Compiler → Component Integration → Ecosystem Tools
+   - Add unit tests through `__tests__/` directory for each module
+   - Use benchmark directory for performance comparison tests
+
+2. Quality Assurance Measures
+   - Add TS type definitions (component option types/function signatures)
+   - Implement test coverage monitoring (jest --coverage)
+   - Code standard checking (eslint + prettier)
+   - Add performance test cases for key algorithms
+
+3. Iterative Development Suggestions
+   - Use monorepo to manage core and ecosystem packages
+   - Implement 90% common scenarios before handling edge cases
+   - Add demo cases through examples/ for each version
+
 ## 文档规范建议
+## Documentation Guidelines
 1. 架构设计文档
    - 模块关系图（使用mermaid语法绘制）
    - 核心类结构UML图
@@ -133,10 +249,32 @@ mini-vue/
    - 为每个public API添加使用示例
    - 单独文档说明与Vue3的差异点
 
+1. Architecture Design Documentation
+   - Module relationship diagram (using mermaid syntax)
+   - Core class structure UML diagram
+   - Reactivity system data flow diagram
+
+2. Development Support Documentation
+   - Maintain CHANGELOG.md for major changes
+   - Write CONTRIBUTING.md guidelines
+   - Add ARCHITECTURE.md explanation
+
+3. API Documentation Standards
+   - Use TSDoc format for exported interfaces
+   - Add usage examples for each public API
+   - Separate documentation for differences from Vue3
+
 需要特别注意的技术点：
+Key Technical Points to Note:
 - 使用Proxy实现响应式时要注意嵌套对象处理
 - 虚拟DOM的diff算法要处理key的使用
 - 编译器需要处理动态属性和事件绑定
 - 组件更新要结合响应式系统和渲染器
 
+- Pay attention to nested object handling when implementing reactivity with Proxy
+- Handle key usage in Virtual DOM diff algorithm
+- Compiler needs to handle dynamic attributes and event binding
+- Component updates should combine reactivity system and renderer
+
 建议先实现最简版本再逐步迭代，不要一开始追求完整功能覆盖。
+Start with implementing the simplest version and iterate gradually, rather than aiming for complete functionality coverage from the beginning.
